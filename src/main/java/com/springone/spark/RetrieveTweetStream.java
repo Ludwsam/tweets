@@ -17,7 +17,21 @@ public class RetrieveTweetStream {
   static JavaStreamingContext jssc;
 
   // WARNING: Change the path and keys
+  // the path file where we will store the data
   private static String PATH = "/Users/ludwineprobst/DataSets/twitter/";
+  //
+  // Class to authenticate with the Twitter streaming API.
+  //
+  // Go to https://apps.twitter.com/
+  // Create your application and then get your own credentials (keys and access tokens tab)
+  //
+  // See https://databricks-training.s3.amazonaws.com/realtime-processing-with-spark-streaming.html
+  // for help.
+  //
+  // If you have the following error "error 401 Unauthorized":
+  // - it might be because of wrong credentials
+  // OR
+  //  - a time zone issue (so be certain that the time zone on your computer is the good one)
   private static String CONSUMER_KEY = "AFiNChb80vxYZfhPls2DXyDpF";
   private static String CONSUMER_SECRET = "JRg7SWyVFkXEESWbEzFzC1xaIGRC3xNdTvrekMvMFk6tjKooOR";
   private static String ACCESS_TOKEN = "493498548-HCCt6LCposCb3Ij7Ygt7ssTxTBPwGoPrnkkDQoaN";
@@ -34,10 +48,12 @@ public class RetrieveTweetStream {
   }
 
   public static void main(String[] args) {
-    // create the spark configuration and spark context
+    // create spark configuration and spark context: the Spark context is the entry point in Spark.
+    // It represents the connexion to Spark and it is the place where you can configure the common properties
+    // like the app name, the master url, memories allocation...
     SparkConf conf = new SparkConf()
         .setAppName("Play with Spark Streaming")
-        .setMaster("local[*]");
+        .setMaster("local[*]");  // here local mode. And * means you will use as much as you have cores.
 
     // create a java streaming context and define the window (2 seconds batch)
     jssc = new JavaStreamingContext(conf, Durations.seconds(2));

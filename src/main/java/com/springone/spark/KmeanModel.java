@@ -34,7 +34,7 @@ public class KmeanModel {
     DataFrame tweets = sqlContext.jsonFile(pathToFile);
     tweets.registerTempTable("tweets");
 
-    DataFrame dataFrame = sqlContext.sql("SELECT text FROM tweets WHERE lang in ('en', 'ja')");
+    DataFrame dataFrame = sqlContext.sql("SELECT text FROM tweets WHERE lang in ('en', 'es', 'ar', 'pt', 'ja')");
     JavaRDD<String> result = dataFrame.javaRDD().map(row -> row.toString());
 
     System.out.println("sql request : " + result.first());
@@ -43,15 +43,21 @@ public class KmeanModel {
     // remove some special caracters...url, # and @ mentions
     // http://stackoverflow.com/questions/161738/what-is-the-best-regular-expression-to-check-if-a-string-is-a-valid-url
     JavaRDD<String> points = result
+        .map(e -> e.toLowerCase())
+        .map(e -> e.replaceAll("rt:\\w+", ""))
         .map(e -> e.replaceAll("\\s+#\\w+", ""))
-        .map(e -> e.replaceAll("#\\w+\\s+", ""))
-        .map(e -> e.replaceAll("\\s+(?:https?|http?)://[\\w/%.-]+", ""))
+        .map(e -> e.replaceAll("#\\w+", ""))
+        .map(e -> e.replaceAll("(?:https?|http?)://[\\w/%.-]+", ""))
         .map(e -> e.replaceAll("(?:https?|http?)://[\\w/%.-]+\\s+", ""))
         .map(e -> e.replaceAll("\\s+@\\w+", ""))
-        .map(e -> e.replaceAll("@\\w+\\s+", ""));
+        .map(e -> e.replaceAll("@\\w+", ""))
+        .filter(e -> e.length() > 80);
 
     System.out.println("Point first: " + points.first());
-    System.out.println("Point first: " + points.take(5));
+    System.out.println("Point take: " + points.take(10));
+    System.out.println("count " + points.count());
+
+    /*List<String> tests = points.take(100);
 
     // slip into 2-gram
     JavaRDD<Iterable<String>> lists = points.map(ele -> NGram.ngrams(2, ele));
@@ -64,21 +70,29 @@ public class KmeanModel {
 
     System.out.println("Vectors count: " + vectors.count());
 
-    int clusterNumber = 2;
+    int clusterNumber = 5;
     int iter = 20;
 
     KMeansModel model = KMeans.train(vectors, clusterNumber, iter);
 
     // Evaluate clustering by computing Within Set Sum of Squared Errors
-    double wssse = model.computeCost(vectors);
-    System.out.println("Within Set Sum of Squared Errors = " + wssse);
+    //double wssse = model.computeCost(vectors);
+    //System.out.println("Within Set Sum of Squared Errors = " + wssse);
 
     List<Vector> examples = vectors.toJavaRDD().take(100);
 
-    // TODO wrong result => fix it!
-    for (Vector example: examples) {
-      System.out.println(example + " is in the cluster " + model.predict(example));
+    for (String test: tests) {
+      Iterable<String> ngram = NGram.ngrams(2, test);
+      Vector v = hash.transform(ngram);
+      int cluster = model.predict(v);
+      System.out.println(test + " is in the cluster " + cluster);
     }
 
+
+    // TODO wrong result => fix it!
+    //for (Vector example: examples) {
+      //System.out.println(example + " is in the cluster " + model.predict(example));
+    //}
+*/
   }
 }
