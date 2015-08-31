@@ -1,4 +1,4 @@
-package com.springone.spark;
+package com.springone.spark.utils;
 
 
 import java.util.ArrayList;

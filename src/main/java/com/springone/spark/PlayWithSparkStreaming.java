@@ -19,7 +19,7 @@ import org.apache.spark.sql.SQLContext;
  *  In here we create a dataframe with the content of a JSON file.
  *
  */
-public class LoadData {
+public class PlayWithSparkStreaming {
 
   // WARNING: Change the path
   // the path file where we stored the data

@@ -1,6 +1,7 @@
 package com.springone.spark;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.springone.spark.utils.Tweet;
 import org.apache.spark.SparkConf;
 import org.apache.spark.streaming.Durations;
 import org.apache.spark.streaming.api.java.JavaDStream;
@@ -12,7 +13,7 @@ import twitter4j.conf.ConfigurationBuilder;
 /**
  * Connection with the Twitter API and Spark streaming to retrieve stream of tweets.
  */
-public class RetrieveTweetStream {
+public class TweetStream {
 
   static JavaStreamingContext jssc;
 

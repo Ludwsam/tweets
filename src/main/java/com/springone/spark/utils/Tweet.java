@@ -1,4 +1,4 @@
-package com.springone.spark;
+package com.springone.spark.utils;
 
 import java.io.Serializable;
 
@@ -8,6 +8,9 @@ public class Tweet implements Serializable {
   String name;
   String text;
   String lang;
+
+  public Tweet() {
+  }
 
   public Tweet( String lang, long id, String name, String text) {
     this.lang = lang;

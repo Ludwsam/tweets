@@ -1,19 +1,13 @@
 package com.springone.spark;
 
 
+import com.springone.spark.utils.NGram;
 import org.apache.spark.SparkConf;
-import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.mllib.classification.NaiveBayes;
-import org.apache.spark.mllib.classification.NaiveBayesModel;
-import org.apache.spark.mllib.regression.LabeledPoint;
-import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.DataFrame;
 import org.apache.spark.sql.SQLContext;
 import scala.Tuple2;
-
-import java.util.List;
 
 // TODO finish this part. It desn't work right now
 public class NaivBayesModel {
