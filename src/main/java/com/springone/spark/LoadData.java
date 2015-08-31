@@ -62,23 +62,5 @@ public class LoadData {
 
   }
 
-  /** en,3071
-      ja,1221
-      es,778
-      ar,609
-      pt,540
-      und,529
-      tr,260
-      ru,223
-      fr,209
-      in,182
-      ko,154
-      th,118
-      it,77
-      tl,67
-      pl,59
-      de,56
-      nl,38
-   */
 }
 
