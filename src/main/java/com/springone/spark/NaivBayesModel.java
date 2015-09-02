@@ -9,15 +9,15 @@ import org.apache.spark.sql.DataFrame;
 import org.apache.spark.sql.SQLContext;
 import scala.Tuple2;
 
-// TODO finish this part. It desn't work right now
+// TODO finish this part. It doesn't work right now
 public class NaivBayesModel {
 
   private static String pathToFile = "file:///Users/ludwineprobst/DataSets/twitter/*";
 
   public static void main(String[] args) {
     SparkConf conf = new SparkConf()
-        .setAppName("fef")
-        .setMaster("local[*]"); // here local mode. And * means you will use as much as you have cores.
+        .setAppName("naives bayes")
+        .setMaster("local[*]");
 
     JavaSparkContext sc = new JavaSparkContext(conf);
     SQLContext sqlContext = new SQLContext(sc);
@@ -36,8 +36,8 @@ public class NaivBayesModel {
       // en <- 0
       // es <- 1
       // ja <- 2
-    JavaRDD<String[]> points = result
-        /*.map(ele -> {
+    /*JavaRDD<String[]> points = result
+        .map(ele -> {
           Object[] point = new Object[2];
           Double label = 0.0;
 
@@ -59,20 +59,16 @@ public class NaivBayesModel {
           point[1] = ele[1];
 
           return point;
-        })*/
-        .map(e -> new String[]{e[0], e[1].replaceAll("#\\w+", "")})
+        })
+        .map(e -> new String[]{(String) e[0], ((String) e[1]).replaceAll("#\\w+", "")})
         .map(e -> new String[]{e[0], e[1].replaceAll("(?:https?|http?)://[\\w/%.-]+", "")})
         .map(e -> new String[]{e[0], e[1].replaceAll("@\\w+", "")});
 
     System.out.println("Point first: " + points.first().length + " " + points.first()[0] + " " + points.first()[1]);
 
-    JavaRDD<Tuple2<String, Iterable<String>>> lists = points.map(ele ->
-            new Tuple2<String, Iterable<String>>(ele[0],
-                NGram.ngrams(2, (String) ele[1])
-            )
-    );
+    //JavaRDD<Tuple2<String, Iterable<String>>> lists = points.map(ele -> new Tuple2<>(ele[0], NGram.ngrams(2, ele[1])));
 
-    System.out.println("With ngram: " + lists.first()._1() + " " + lists.first()._2());
+    //System.out.println("With ngram: " + lists.first()._1() + " " + lists.first()._2());
 
     /*System.out.println(points.first().length);
     System.out.println(points.first()[0]);

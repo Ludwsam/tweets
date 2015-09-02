@@ -1,6 +1,7 @@
 package com.springone.spark;
 
 
+import com.springone.spark.utils.NGram;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -16,7 +17,6 @@ import java.util.List;
 
 /**
  * Use the Kmeans method to define cluster per language.
- * It doesn't work for now...
  */
 public class KmeanModel {
 
@@ -24,7 +24,7 @@ public class KmeanModel {
 
   public static void main(String[] args) {
     SparkConf conf = new SparkConf()
-        .setAppName("fef")
+        .setAppName("K-means")
         .setMaster("local[*]"); // here local mode. And * means you will use as much as you have cores.
 
     JavaSparkContext sc = new JavaSparkContext(conf);
@@ -37,11 +37,12 @@ public class KmeanModel {
     DataFrame dataFrame = sqlContext.sql("SELECT text FROM tweets WHERE lang in ('en', 'es', 'ar', 'pt', 'ja')");
     JavaRDD<String> result = dataFrame.javaRDD().map(row -> row.toString());
 
-    System.out.println("sql request : " + result.first());
-    System.out.println("sql count : " + result.count());
+    System.out.println("first element of the sql request : " + result.first());
+    System.out.println("sql request count : " + result.count());
 
     // remove some special caracters...url, # and @ mentions
     // http://stackoverflow.com/questions/161738/what-is-the-best-regular-expression-to-check-if-a-string-is-a-valid-url
+    // TODO
     JavaRDD<String> points = result
         .map(e -> e.toLowerCase())
         .map(e -> e.replaceAll("rt:\\w+", ""))
@@ -57,7 +58,7 @@ public class KmeanModel {
     System.out.println("Point take: " + points.take(10));
     System.out.println("count " + points.count());
 
-    /*List<String> tests = points.take(100);
+    List<String> tests = points.take(100);
 
     // slip into 2-gram
     JavaRDD<Iterable<String>> lists = points.map(ele -> NGram.ngrams(2, ele));
@@ -75,6 +76,7 @@ public class KmeanModel {
 
     KMeansModel model = KMeans.train(vectors, clusterNumber, iter);
 
+    // TODO improve the error
     // Evaluate clustering by computing Within Set Sum of Squared Errors
     //double wssse = model.computeCost(vectors);
     //System.out.println("Within Set Sum of Squared Errors = " + wssse);
@@ -89,10 +91,10 @@ public class KmeanModel {
     }
 
 
-    // TODO wrong result => fix it!
+    // TODO analyze the results
     //for (Vector example: examples) {
       //System.out.println(example + " is in the cluster " + model.predict(example));
     //}
-*/
+
   }
 }
