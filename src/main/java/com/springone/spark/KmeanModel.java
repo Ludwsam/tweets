@@ -86,7 +86,7 @@ public class KmeanModel {
 
     // Evaluate clustering by computing Within Set Sum of Squared Errors
     double wssse = model.computeCost(vectors);
-    System.out.println("Within Set Sum of Squared Errors = " + wssse); // 215122
+    System.out.println("Within Set Sum of Squared Errors = " + wssse);
 
     for (String test: tests) {
       Iterable<String> ngram = NGram.ngrams(2, test);
