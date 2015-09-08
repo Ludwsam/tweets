@@ -79,7 +79,7 @@ public class KmeanModel {
 
     System.out.println("Vectors count: " + vectors.count());
 
-    int clusterNumber = 4;
+    int clusterNumber = 3;
     int iter = 20;
 
     KMeansModel model = KMeans.train(vectors, clusterNumber, iter);
