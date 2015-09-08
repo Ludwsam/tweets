@@ -3,6 +3,7 @@ package com.springone.spark;
 
 import com.springone.spark.utils.NGram;
 import org.apache.spark.SparkConf;
+import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.mllib.clustering.KMeans;
@@ -12,6 +13,7 @@ import org.apache.spark.mllib.linalg.Vector;
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.DataFrame;
 import org.apache.spark.sql.SQLContext;
+import scala.Tuple2;
 
 import java.util.List;
 
@@ -34,24 +36,30 @@ public class KmeanModel {
     DataFrame tweets = sqlContext.jsonFile(pathToFile);
     tweets.registerTempTable("tweets");
 
-    DataFrame dataFrame = sqlContext.sql("SELECT text FROM tweets WHERE lang in ('en', 'es', 'ar', 'pt', 'ja')");
-    JavaRDD<String> result = dataFrame.javaRDD().map(row -> row.toString());
+    DataFrame dataFrame = sqlContext.sql("SELECT lang, text FROM tweets WHERE lang in ('en', 'es', 'ja')");
+    JavaPairRDD<String, String> couple = dataFrame.javaRDD().mapToPair(row -> new Tuple2(row.get(0).toString(), row.get(1).toString()));
 
-    System.out.println("first element of the sql request : " + result.first());
-    System.out.println("sql request count : " + result.count());
+    System.out.println("first element of the sql request : " + couple.first()._1() + " " + couple.first()._2());
+    System.out.println("sql request count : " + couple.count());
 
+    JavaRDD<String> texts = couple.map(e -> e._2());
     // remove some special caracters...url, # and @ mentions
     // http://stackoverflow.com/questions/161738/what-is-the-best-regular-expression-to-check-if-a-string-is-a-valid-url
-    // TODO
-    JavaRDD<String> points = result
+    JavaRDD<String> points = texts
         .map(e -> e.toLowerCase())
-        .map(e -> e.replaceAll("rt:\\w+", ""))
+        .map(e -> e.replaceAll("rt\\s+", ""))
+        .map(e -> e.replaceAll(":", ""))
+        .map(e -> e.replaceAll("!", ""))
+        .map(e -> e.replaceAll(",", ""))
         .map(e -> e.replaceAll("\\s+#\\w+", ""))
         .map(e -> e.replaceAll("#\\w+", ""))
         .map(e -> e.replaceAll("(?:https?|http?)://[\\w/%.-]+", ""))
         .map(e -> e.replaceAll("(?:https?|http?)://[\\w/%.-]+\\s+", ""))
+        .map(e -> e.replaceAll("(?:https?|http?)//[\\w/%.-]+\\s+", ""))
+        .map(e -> e.replaceAll("(?:https?|http?)//[\\w/%.-]+", ""))
         .map(e -> e.replaceAll("\\s+@\\w+", ""))
         .map(e -> e.replaceAll("@\\w+", ""))
+        .map(e -> e.replaceFirst("\\s+", ""))
         .filter(e -> e.length() > 80);
 
     System.out.println("Point first: " + points.first());
@@ -71,17 +79,14 @@ public class KmeanModel {
 
     System.out.println("Vectors count: " + vectors.count());
 
-    int clusterNumber = 5;
+    int clusterNumber = 4;
     int iter = 20;
 
     KMeansModel model = KMeans.train(vectors, clusterNumber, iter);
 
-    // TODO improve the error
     // Evaluate clustering by computing Within Set Sum of Squared Errors
-    //double wssse = model.computeCost(vectors);
-    //System.out.println("Within Set Sum of Squared Errors = " + wssse);
-
-    List<Vector> examples = vectors.toJavaRDD().take(100);
+    double wssse = model.computeCost(vectors);
+    System.out.println("Within Set Sum of Squared Errors = " + wssse); // 215122
 
     for (String test: tests) {
       Iterable<String> ngram = NGram.ngrams(2, test);
@@ -89,12 +94,6 @@ public class KmeanModel {
       int cluster = model.predict(v);
       System.out.println(test + " is in the cluster " + cluster);
     }
-
-
-    // TODO analyze the results
-    //for (Vector example: examples) {
-      //System.out.println(example + " is in the cluster " + model.predict(example));
-    //}
 
   }
 }
