@@ -1,7 +1,6 @@
 package com.springone.spark;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.springone.spark.utils.Tweet;
 import org.apache.spark.SparkConf;
 import org.apache.spark.streaming.Durations;
 import org.apache.spark.streaming.api.java.JavaDStream;
@@ -19,7 +18,7 @@ public class TweetStream {
 
   // WARNING: Change the path and keys
   // the path file where we will store the data
-  private static String PATH = "/Users/ludwineprobst/DataSets/twitter/";
+  private static String PATH = "/home/samklr/code/datasets/tweets";
   //
   // Class to authenticate with the Twitter streaming API.
   //
@@ -53,7 +52,7 @@ public class TweetStream {
     // It represents the connexion to Spark and it is the place where you can configure the common properties
     // like the app name, the master url, memories allocation...
     SparkConf conf = new SparkConf()
-        .setAppName("Play with Spark Streaming")
+        .setAppName("Playing with Spark Streaming")
         .setMaster("local[*]");  // here local mode. And * means you will use as much as you have cores.
 
     // create a java streaming context and define the window (2 seconds batch)
@@ -63,6 +62,7 @@ public class TweetStream {
 
     ObjectMapper mapper = new ObjectMapper();
 
+    /**
     JavaDStream<String> tweets = TwitterUtils.createStream(jssc, getAuth())
         .map(tweetStatus ->
             new Tweet(tweetStatus.getLang(),
@@ -71,9 +71,16 @@ public class TweetStream {
                 tweetStatus.getText()))
         .map(tweet -> mapper.writeValueAsString(tweet));
 
+     **/
+
+      String[] filters = {"spring", "springone", "java", "spark" , "#DC", "washington" , "#paris", "donald trump"};
+
+    JavaDStream<String> tweets = TwitterUtils.createStream(jssc, getAuth(), filters)
+              .map(tweetStatus -> mapper.writeValueAsString(tweetStatus));
+
     tweets.print();
 
-    tweets.dstream().saveAsTextFiles(PATH, "stream");
+    tweets.repartition(1).dstream().saveAsTextFiles(PATH, "stream");
 
     // Start the context
     jssc.start();
