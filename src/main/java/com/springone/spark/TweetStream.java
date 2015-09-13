@@ -1,6 +1,7 @@
 package com.springone.spark;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.log4j.Logger;
 import org.apache.spark.SparkConf;
 import org.apache.spark.streaming.Durations;
 import org.apache.spark.streaming.api.java.JavaDStream;
@@ -13,8 +14,10 @@ import twitter4j.conf.ConfigurationBuilder;
  * Connection with the Twitter API and Spark streaming to retrieve stream of tweets.
  */
 public class TweetStream {
+    final static Logger log = Logger.getLogger(TweetStream.class);
 
-  static JavaStreamingContext jssc;
+
+    static JavaStreamingContext jssc;
 
   // WARNING: Change the path and keys
   // the path file where we will store the data

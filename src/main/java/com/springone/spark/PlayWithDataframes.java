@@ -1,6 +1,7 @@
 package com.springone.spark;
 
 
+import org.apache.log4j.Logger;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.DataFrame;
@@ -10,6 +11,8 @@ import org.apache.spark.sql.SQLContext;
  * This requires Spark 1.4 +
  */
 public class PlayWithDataframes {
+    final static Logger log = Logger.getLogger(PlayWithDataframes.class);
+
 
     private static String PATH = "/home/samklr/code/datasets/*/*";
 
@@ -30,7 +33,7 @@ public class PlayWithDataframes {
 
         tweets.printSchema();
 
-        System.out.println("Number of Tweets " + tweets.count());
+        log.info("Number of Tweets " + tweets.count());
 
         // Displays the content of the DataFrame to stdout
         tweets.show(5);
@@ -56,7 +59,7 @@ public class PlayWithDataframes {
 
         filtered.show();
 
-        System.out.println("Tweet count " + filtered.count());
+        log.info("Filtered Tweet count " + filtered.count());
 
 
         // Now Let's do some machine learning with these tweets
