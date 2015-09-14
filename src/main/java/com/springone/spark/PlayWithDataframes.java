@@ -13,7 +13,6 @@ import org.apache.spark.sql.SQLContext;
 public class PlayWithDataframes {
     final static Logger log = Logger.getLogger(PlayWithDataframes.class);
 
-
     private static String PATH = "/home/samklr/code/datasets/*/*";
 
     public static void main(String[] args){
@@ -29,7 +28,12 @@ public class PlayWithDataframes {
         SQLContext sqlContext = new SQLContext(sc);
 
         // load the data (json file here) and register the data in the "tweets" table.
-        DataFrame tweets = sqlContext.read().json(PATH);  // You can also read different type of files :Parquet, ORC, Web APIs, etc .
+        DataFrame tweets = sqlContext.read()
+                                     .format("json")
+                                     .option("samplingRatio","0.1")
+                                     .load(PATH);
+
+        // You can also read different type of files :Parquet, ORC, Web APIs, etc .
 
         tweets.printSchema();
 
@@ -52,10 +56,16 @@ public class PlayWithDataframes {
         // filter tweets only in english, french and spanish
         // and do some cleaning. I will remove all the Rows that are not correct or contains null or N/A values by using na().drop()
 
-        DataFrame filtered = tweets2.filter(       ( tweets.col("lang").equalTo("en"))
-                                                 .or(tweets.col("lang").equalTo("fr"))
-                                                 .or(tweets.col("lang").equalTo("es")))
-                                    .na().drop();
+        tweets2.groupBy("lang").count().sort("count").show(50);
+
+        DataFrame filtered =
+                tweets2.filter((tweets.col("lang").equalTo("en"))
+                        .or(tweets.col("lang").equalTo("fr"))
+                        .or(tweets.col("lang").equalTo("es")))
+                        .na()
+                        .drop();
+
+        //DataFrame transformed = filtered.select("lang" ,"text").withColumn()
 
         filtered.show();
 
@@ -66,5 +76,24 @@ public class PlayWithDataframes {
 
 
 
+    }
+
+
+    public static String cleanStatus(String text){
+
+        return text.toLowerCase()
+                .replaceAll("rt\\s+", "")
+                .replaceAll(":", "")
+                .replaceAll("!", "")
+                .replaceAll(",", "")
+                .replaceAll("\\s+#\\w+", "")
+                .replaceAll("#\\w+", "")
+                .replaceAll("(?:https?|http?)://[\\w/%.-]+", "")
+                .replaceAll("(?:https?|http?)://[\\w/%.-]+\\s+", "")
+                .replaceAll("(?:https?|http?)//[\\w/%.-]+\\s+", "")
+                .replaceAll("(?:https?|http?)//[\\w/%.-]+", "")
+                .replaceAll("\\s+@\\w+", "")
+                .replaceAll("@\\w+", "")
+                .replaceFirst("\\s+", "");
     }
 }
