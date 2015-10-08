@@ -33,6 +33,10 @@ public class PlayWithDataframes {
                                      .option("samplingRatio","0.1")
                                      .load(PATH);
 
+        // I'm here too you know ;p
+        // I think you can't remove me!!!
+        // piou piou
+
         // You can also read different type of files :Parquet, ORC, Web APIs, etc .
 
         tweets.printSchema();
